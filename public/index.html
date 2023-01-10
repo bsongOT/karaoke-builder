@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="kr">
+    <head>
+        <style>
+            audio{
+                width: 800px;
+            }
+            canvas{
+                border: 1px solid black;
+            }
+            .word{
+                display: inline-block;
+                font-size: 30px;
+                padding: 2px;
+                padding-left: 0;
+            }
+            .word:nth-child(even){
+                background-color: aquamarine
+            }
+            .word:nth-child(odd){
+                background-color: blanchedalmond;
+            }
+            #playbar{
+                position: relative;
+                background-color: black;
+                height: 40px;
+                width: 2px;
+                bottom: 40px;
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas" width="800" height="450"></canvas><br>
+
+        Music : <input type="file" name="music" id="music" accept=".mp3, .wav"><br><audio id="audio"></audio><br>
+        Mr : <input type="file" name="mr" id="mr" accept=".mp3, .wav"><br><audio id="audioMR"></audio><br>
+        Lyric : <br><textarea id="lyric" cols="40" rows="50"></textarea><br><button id="lyric-confirm" onclick="receiveLyric();">확인</button>
+
+        <div id="syncs"></div>
+        <div id="playbar"></div><br>
+        <button onclick="convertClick()">변환</button><br>
+        <script src="public/input.js"></script>
+        <script src='https://unpkg.com/@ffmpeg/ffmpeg@0.9.3/dist/ffmpeg.min.js' crossorigin="anonymous"></script>
+        <script src="public/videoConverter.js"></script>
+        <script src="public/data.js" charset="UTF-8"></script>
+        <script src="public/sync.js"></script>
+        <script src="public/main.js"></script>
+    </body>
+</html>

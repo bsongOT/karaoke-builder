@@ -1,27 +1,35 @@
 const { createFFmpeg, fetchFile } = FFmpeg;
 const ffmpeg = createFFmpeg({
-    log: true,
+    log: false,
     corePath: "public/ffmpeg-core.js"
 });
 
-async function convertToMp4(blob){
+async function convertToMp4(blob, fileName, duration){
     await ffmpeg.load();
     ffmpeg.FS("writeFile", "my.webm", await fetchFile(blob));
-    await ffmpeg.run("-i", "my.webm", "my.mp4");
-    return ffmpeg.FS("readFile", "my.mp4");
+    
+    const progress = downloadProgress.querySelector(".progress");
+    ffmpeg.setLogger(({message}) => {
+        if (!message.startsWith("frame=")) return;
+        const frame = message.slice(message.indexOf("frame=") + 6, message.indexOf("fps=")).trim();
+        
+        progress.style.width = 100 * Number(frame) / (60 * duration) + "%";
+    })
+    await ffmpeg.run("-i", "my.webm", `${fileName}.mp4`);
+    return ffmpeg.FS("readFile", `${fileName}.mp4`);
 }
 
-async function downloadFile(mp4){
+async function downloadFile(mp4, fileName){
     const blob = new Blob([mp4.buffer], {type: "video/mp4"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     document.body.appendChild(a);
-    a.download = "my.mp4";
+    a.download = `${fileName}.mp4`;
     a.click();
 }
 
-function convert(canvas, drawFunc, endTime){
+function convert(canvas, drawFunc, endTime, fileName){
     let stream = canvas.captureStream(60);
     let recordedChunks = [];
 
@@ -44,16 +52,19 @@ function convert(canvas, drawFunc, endTime){
         recordedChunks.push(e.data);
     }
     recorder.onstop = async () => {
-        let blob = new Blob(recordedChunks, {type: "video/webm"});
-        let url = URL.createObjectURL(blob);
+        const blob = new Blob(recordedChunks, {type: "video/webm"});
         
-        await downloadFile(await convertToMp4(blob));
-        //video.src = url;
+        await downloadFile(await convertToMp4(blob, fileName, audio.duration), fileName);
     }
 
+    const cx = canvas.getContext("2d")
+    const progress = convertProgress.querySelector(".progress");
+    
     let anim = () => {
         if (audio.paused) return recorder.stop();
-        drawFunc(audio.currentTime);
+
+        progress.style.width = 100 * audio.currentTime / audio.duration + "%";
+        drawFunc(audio.currentTime, canvas, cx);
         requestAnimationFrame(anim);
     }
 

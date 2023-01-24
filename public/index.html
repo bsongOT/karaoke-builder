@@ -1,50 +1,71 @@
 <!DOCTYPE html>
 <html lang="kr">
     <head>
+        <link rel="stylesheet" href="public/styles/global.css">
+        <link rel="stylesheet" href="public/styles/step3.css">
         <style>
-            audio{
-                width: 800px;
-            }
-            canvas{
-                border: 1px solid black;
-            }
-            .word{
-                display: inline-block;
-                font-size: 30px;
-                padding: 2px;
-                padding-left: 0;
-            }
-            .word:nth-child(even){
-                background-color: aquamarine
-            }
-            .word:nth-child(odd){
-                background-color: blanchedalmond;
-            }
-            #playbar{
-                position: relative;
-                background-color: black;
-                height: 40px;
-                width: 2px;
-                bottom: 40px;
-                display: none;
+            .placeholder{
+                display: inline-flex;
+                align-items: center;
             }
         </style>
     </head>
     <body>
-        <canvas id="canvas" width="800" height="450"></canvas><br>
-
-        Music : <input type="file" name="music" id="music" accept=".mp3, .wav"><br><audio id="audio"></audio><br>
-        Mr : <input type="file" name="mr" id="mr" accept=".mp3, .wav"><br><audio id="audioMR"></audio><br>
-        Lyric : <br><textarea id="lyric" cols="40" rows="50"></textarea><br><button id="lyric-confirm" onclick="receiveLyric();">확인</button>
-
-        <div id="syncs"></div>
-        <div id="playbar"></div><br>
-        <button onclick="convertClick()">변환</button><br>
-        <script src="public/input.js"></script>
+        <div id="steps">
+            <div class="step" id="step1">1</div>
+            <div class="step-edge" id="step-edge1"></div>
+            <div class="step" id="step2">2</div>
+            <div class="step-edge" id="step-edge2"></div>
+            <div class="step" id="step3">3</div>
+            <div class="step-edge" id="step-edge3"></div>
+            <div class="step" id="step4">4</div>
+        </div>
+        <div id="step1-container" class="container">
+            <fieldset class="placeholder" align="center">
+                <legend>Music</legend>
+                <input type="file" name="music" id="music" accept=".mp3, .wav"><br>
+            </fieldset><br>
+            <fieldset class="placeholder" align="center">
+                <legend>Mr</legend>
+                <input type="file" name="mr" id="mr" accept=".mp3, .wav">
+            </fieldset><br>
+            <button class="next-button" onclick="nextStep()">Next</button>
+        </div>
+        <div id="step2-container" class="container">
+            가사 <br><textarea id="lyric" cols="40" rows="20"></textarea><br>
+            <button class="next-button" id="lyric-confirm" onclick="receiveLyric();">Next</button>
+        </div>
+        <div id="step3-container" class="container">
+            <canvas class="screen" id="canvas" width="800" height="450"></canvas><br>
+            <audio id="audioMR"></audio><br>
+            <div id="play-controller">
+                <audio id="audio"></audio>
+                <div id="syncs-viewer">
+                    <div id="syncs"></div>
+                </div>
+                <div id="playbar"></div>
+            </div>
+            <div id="lyric-panel"></div>
+            <div style="grid-row: 3; grid-column: 1;"><button class="next-button" onclick="convertClick()">Next</button></div>
+        </div>
+        <div id="step4-container" class="container">
+            <canvas class="screen" id="canvas2" width="800" height="450"></canvas><br>
+            변환 <div class="progress-bar" id="convert-progress">
+                <div class="progress"></div>
+            </div>
+            다운 <div class="progress-bar" id="download-progress">
+                <div class="progress"></div>
+            </div>
+        </div>
+        <script src="public/data-struct/article.js"></script>
+        <script src="public/step1.js"></script>
+        <script src="public/step2.js"></script>
+        <script src="public/step3.js"></script>
         <script src='https://unpkg.com/@ffmpeg/ffmpeg@0.9.3/dist/ffmpeg.min.js' crossorigin="anonymous"></script>
         <script src="public/videoConverter.js"></script>
         <script src="public/data.js" charset="UTF-8"></script>
         <script src="public/sync.js"></script>
         <script src="public/main.js"></script>
+        <script src="public/util.js"></script>
     </body>
 </html>

@@ -1,67 +1,81 @@
-let canvas = document.getElementById("canvas");
-let cx = canvas.getContext("2d");
-let playbar = document.getElementById("playbar");
+const canvas = document.getElementById("canvas");
+const cx = canvas.getContext("2d");
+const canvas2 = document.getElementById("canvas2");
+const cx2 = canvas2.getContext("2d");
+const playbar = document.getElementById("playbar");
+const musicAudio = document.getElementById("audio");
+const mrAudio = document.getElementById("audioMR");
+const containers = document.getElementsByClassName("container");
+const steps = document.querySelectorAll(".step");
+const stepEdges = document.querySelectorAll(".step-edge");
+const lyricText = document.getElementById("lyric");
+const confirm = document.getElementById("lyric-confirm");
+const lyricPanel = document.getElementById("lyric-panel");
+const convertProgress = document.getElementById("convert-progress");
+const downloadProgress = document.getElementById("download-progress");
 
-let font = new FontFace("Happiness", "url(public/fonts/Happiness-Sans-Title.woff2)");
-let textXs;
-let tid;
+let step = 1;
 
-function showResult() {
-    font.load().then(() => {
-        document.fonts.add(font);
-        cx.font = "60px Happiness";
-        cx.lineWidth = 4;
-        textXs = lines.map(s => (canvas.width - cx.measureText(s).width) / 2)
-    }).catch(console.log);
-    playbar.style.display = "block";
-    tid = setInterval(()=>draw(audio.currentTime), 25);
-}
+let isAllowedNext = [
+    () => musicAudio.controls && mrAudio.controls,
+    () => lyricText.value.trim() !== "",
+    () => true
+]
 
-function convertClick(){
-    clearInterval(tid);
-    convert(canvas, draw, document.getElementById("audio").duration);
-}
+const load = [
+    () => {},
+    () => {},
+    () => {
+        lyricPanel.innerHTML = syncData.map(l => 
+            '<div class="line">' + 
+            l.map(s => s.word).join("") + 
+            '</div><br>'
+        ).join("");
+        document.querySelector(".line").classList.add("current");
 
-const draw = (time) => {
-    cx.clearRect(0, 0, canvas.width, canvas.height);
-
-    cx.beginPath();
-    let idx = sync.findIndex(a => a.end > time);
-    if (idx !== 0 && time < sync[idx]?.start) idx--;
-    if (idx < 0) idx = sync.length - 1;
-    const beforeWord = lines[sync[idx - 1]?.line]?.slice(0, sync[idx]?.indexInLine);
-    const lineProgress = lines[sync[idx].line].slice(0, sync[idx].indexInLine + 1);
-    const before = sync[idx - 1]?.line === sync[idx].line ? cx.measureText(beforeWord).width : 0;
-    const now = cx.measureText(lineProgress).width;
-    const ratio = Math.min(1, (time - sync[idx].start) / (sync[idx].end - sync[idx].start));
-    const progressWidth = before + (now - before) * ratio;
-
-    playbar.style.left = 120 * (time - sync[idx - sync[idx].syncIndexInLine].start) + "px";
-
-    if (sync[idx - 1]?.line !== sync[idx].line) {
-        syncLine.innerHTML = "";
-        const l = lines[sync[idx].line].split(" ").join("");
-        for (let i = 0; i < l.length; i++) {
-            syncLine.insertAdjacentHTML("beforeend",
-                `<div class="word">${l[i]}</div>`);
-            const getLast = arr => arr[arr.length - 1];
-            const sn = sync[idx - sync[idx].syncIndexInLine + i];
-            getLast(syncLine.children).style.width = 120 * (sn.end - sn.start) + "px";
+        syncLine.insertAdjacentHTML("beforeend", `<div class="measure"></div>`)
+        for (let i = 0; i < syncData.at(0).length; i++){
+            syncLine.children[0].insertAdjacentHTML("beforeend", `<span class="word">${syncData.at([0, i]).word.trim()}</span>`);
+            syncLine.children[0].lastElementChild.style.left = 28 * i + "px";
         }
-    }
+        let tid2 = setInterval(() => {
+            if (step !== 3) return clearInterval(tid2);
 
-    cx.rect(textXs[sync[idx].line], 170 + 150 * (sync[idx].line % 2), progressWidth, 120);
-    cx.fill();
+            const time = musicAudio.currentTime;
+            playbar.style.left = (260 * time % 1300) + "px";
+            syncLine.style.left = -1300 * Math.floor(time / 5) + "px";
 
-    cx.globalCompositeOperation = "source-in";
-    cx.fillStyle = "yellow";
-    cx.fillText(lines[sync[idx].line], textXs[sync[idx].line], 250 + 150 * (sync[idx].line % 2));
+            if (tindex[0] === 0 && tindex[1] === 0) return;
 
-    cx.globalCompositeOperation = "destination-over";
-    cx.fillStyle = "white";
-    cx.strokeStyle = "black";
-    cx.fillText(lines[sync[idx].line + sync[idx].line % 2], textXs[sync[idx].line + sync[idx].line % 2], 250);
-    cx.strokeText(lines[sync[idx].line + sync[idx].line % 2], textXs[sync[idx].line + sync[idx].line % 2], 250);
-    cx.fillText(lines[sync[idx].line + 1 - sync[idx].line % 2], textXs[sync[idx].line + 1 - sync[idx].line % 2], 400);
-    cx.strokeText(lines[sync[idx].line + 1 - sync[idx].line % 2], textXs[sync[idx].line + 1 - sync[idx].line % 2], 400);
+            const prevIndex = syncData.prevIndex(tindex);
+            const prev = syncLine.children[prevIndex[0]].children[prevIndex[1]];
+            const prevData = syncData.prev(tindex);
+
+            const lines = Array.from(lyricPanel.querySelectorAll(".line"));
+            const obsoleteIndex = lines.findIndex(e => e.classList.contains("current"));
+            if (obsoleteIndex !== tindex[0]){
+                lines[obsoleteIndex]?.classList?.remove("current");
+                lines[tindex[0]]?.classList?.add("current");
+            }
+            prev.style.left = (260 * prevData.start) + "px";
+            prev.style.width = (260 * ((prevData.end ?? time) - prevData.start)) + "px";
+        }, 25);
+    },
+    () => {}
+]
+
+function nextStep(){
+    if (!isAllowedNext[step - 1]()) return alert("잘못된 입력입니다.");
+    
+    containers[step - 1].style.display = "none";
+
+    if (step === 2) containers[step].style.display = "grid";
+    else containers[step].style.display = "block";
+
+    steps[step].style.background = "greenyellow";
+    if (stepEdges[step]) stepEdges[step].style.background = "greenyellow";
+
+    load[step]();
+    
+    step++;
 }

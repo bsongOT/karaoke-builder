@@ -1,47 +1,51 @@
 const audio = document.getElementById("audio");
 const syncLine = document.getElementById("syncs");
-let index = 0;
-let line = 0;
-let indexInLine = 0;
-let syncIndexInLine = 0;
-const handle = (e)=>{
-    if (e.code === "Backspace"){
 
+let tindex = [0, 0];
+
+const handle = (e)=>{
+    if (step !== 3) return;
+    if (e.code === "Backspace"){
+        if (tindex[0] === 0 && tindex[1] === 0) return;
+        tindex[1]--;
+        if (!syncData.at(tindex)){
+            tindex[0]--;
+            tindex[1] = syncData.at(tindex[0]).length - 1;
+        }
+
+        syncLine.children[tindex[0]].children[tindex[1]].classList.remove("synced");
+
+        syncData.at(tindex).start = undefined;
+        syncData.at(tindex).end = undefined;
     }
     else if (e.code === "KeyA"){
-        while (lyric[index] === '\n' || lyric[index] === ' ' || typeof lyric[index] == "undefined") {
-            if (lyric[index] === '\n') {
-                line++;
-                indexInLine = 0;
-                syncIndexInLine = 0;
-                syncLine.innerHTML = "";
-            }
-            else indexInLine++;
-            index++;
+        const current = syncData.at(tindex)
+        const prev = syncData.prev(tindex);
 
-            if (index >= lyric.length || index < 0) break;
+        current.start = audio.currentTime;
+        
+        if (prev && !prev.end) prev.end = current.start;
+        
+        syncLine.children[tindex[0]].children[tindex[1]].classList.add("synced");
+        
+        tindex[1]++;
+        if (!syncData.at(tindex)){
+            tindex[0]++;
+            tindex[1] = 0;
+
+            if (!syncData.at(tindex)) return;
+
+            syncLine.insertAdjacentHTML("beforeend", `<div class="measure"></div>`)
+            for (let i = 0; i < syncData.at(tindex[0]).length; i++){
+                syncLine.children[tindex[0]].insertAdjacentHTML("beforeend", `<span class="word">${syncData.at([tindex[0],i]).word.trim()}</span>`);
+                syncLine.children[tindex[0]].lastElementChild.style.left = syncData.at(tindex).start + 28 * i + "px";
+            }
         }
-        if (sync.length > 0) sync[sync.length - 1].end = sync[sync.length - 1].end ?? audio.currentTime;
-        sync.push({
-            start: audio.currentTime,
-            end: undefined,
-            line: line,
-            indexInLine: indexInLine,
-            syncIndexInLine: syncIndexInLine,
-            word: lyric[index],
-            index: index
-        })
-        syncLine.insertAdjacentHTML("beforeend", 
-                    `<div class="word">${lyric[index]}</div>`);
-        index++;
-        syncIndexInLine++;
-        indexInLine++;
     }
     else if (e.code === "KeyS"){
-        sync[sync.length - 1].end = audio.currentTime;
-        if (index >= lyric.length){
+        syncData.prev(tindex).end = audio.currentTime;
+        if (!syncData.at(tindex[0], tindex[1] + 1) && !syncData.at(tindex[0] + 1, 0)){
             showResult();
-            console.log(sync);
             return document.removeEventListener("keydown", handle);
         }
     }

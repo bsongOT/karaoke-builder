@@ -5,9 +5,6 @@
 audio{
     width: 100%;
 }
-#audioMR{
-    display: none;
-}
 #syncs-viewer{
     overflow: hidden;
     background: #eee;

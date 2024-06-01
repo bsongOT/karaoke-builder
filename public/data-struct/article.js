@@ -10,6 +10,9 @@ class Article{
         if (!isNaN(index)) return this.data[index];
         return this.data[index[0]]?.[index[1]];
     }
+    line(index){
+        return this.data[index];
+    }
     prev(index){
         const idx = this.prevIndex(index);
         return this.data[idx[0]]?.[idx[1]];

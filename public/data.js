@@ -1,7 +1,3 @@
-let lyric;
-let lines;
-let syncData = [];
-
 class SyncInfo{
     word;
     kind; // "man" | "woman"

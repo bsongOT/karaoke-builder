@@ -1,7 +1,9 @@
 const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
 
 function syllabify(words) {
-    return words.match(syllableRegex);
+    const arr = words.match(syllableRegex);
+    if (arr) return arr;
+    return [words];
 }
 
 function toSylls(sentence){

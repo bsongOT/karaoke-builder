@@ -8,48 +8,21 @@
                 display: inline-flex;
                 align-items: center;
             }
+            main {
+                display: grid;
+
+            }
         </style>
     </head>
     <body>
-        <div id="steps">
-            <div class="step" id="step1">1</div>
-            <div class="step-edge" id="step-edge1"></div>
-            <div class="step" id="step2">2</div>
-            <div class="step-edge" id="step-edge2"></div>
-            <div class="step" id="step3">3</div>
-            <div class="step-edge" id="step-edge3"></div>
-            <div class="step" id="step4">4</div>
-        </div>
-        <div id="step1-container" class="container">
-            <fieldset class="placeholder" align="center">
-                <legend>Music</legend>
-                <input type="file" name="music" id="music" accept=".mp3, .wav"><br>
-            </fieldset><br>
-            <fieldset class="placeholder" align="center">
-                <legend>Mr</legend>
-                <input type="file" name="mr" id="mr" accept=".mp3, .wav">
-            </fieldset><br>
-            <button class="next-button" onclick="nextStep()">Next</button>
-        </div>
-        <div id="step2-container" class="container">
-            가사 <br><textarea id="lyric" cols="40" rows="20"></textarea><br>
-            <button class="next-button" id="lyric-confirm" onclick="receiveLyric();">Next</button>
-        </div>
-        <div id="step3-container" class="container">
-            <canvas class="screen" id="canvas" width="800" height="450"></canvas><br>
-            <audio id="audioMR"></audio><br>
-            <div id="play-controller">
-                <audio id="audio"></audio>
-                <div id="syncs-viewer">
-                    <div id="syncs"></div>
-                </div>
-                <div id="playbar"></div>
-            </div>
-            <div id="lyric-panel"></div>
-            <div style="grid-row: 3; grid-column: 1;"><button class="next-button" onclick="convertClick()">Next</button></div>
-        </div>
+        <main>
+            <canvas class="screen" id="canvas" width="800" height="450"></canvas>
+            <ul id="lyric"></ul>
+            <input type="file" name="music" id="music" accept=".mp3, .wav">
+            <audio id="audio"></audio>
+        </main>
+
         <div id="step4-container" class="container">
-            <canvas class="screen" id="canvas2" width="800" height="450"></canvas><br>
             변환 <div class="progress-bar" id="convert-progress">
                 <div class="progress"></div>
             </div>
@@ -58,9 +31,6 @@
             </div>
         </div>
         <script src="public/data-struct/article.js"></script>
-        <script src="public/step1.js"></script>
-        <script src="public/step2.js"></script>
-        <script src="public/step3.js"></script>
         <script src='https://unpkg.com/@ffmpeg/ffmpeg@0.9.3/dist/ffmpeg.min.js' crossorigin="anonymous"></script>
         <script src="public/videoConverter.js"></script>
         <script src="public/data.js" charset="UTF-8"></script>

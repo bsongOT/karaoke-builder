@@ -1,40 +1,3 @@
-#steps{
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-#step1, #step-edge1{
-    background: greenyellow;
-}
-.step{
-    display: flex;
-    align-items: center;
-    font-size: 25px;
-    justify-content: center;
-    border: 2px solid black;
-    background: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
-.step-edge{
-    margin: 0 -3px 0 -3px;
-    height: 10px;
-    width: 30px;
-    background: white;
-    border: 2px solid black;
-    border-width: 2px 0 2px 0;
-    z-index: 1;
-}
-#step2-container, #step3-container, #step4-container{
-    display: none;
-}
-#step3-container{
-    grid-template: 1fr 100px/800px 500px;
-}
-.next-button{
-    margin-top: 10px;
-}
 .screen{
     border: 1px solid black;
 }
@@ -49,4 +12,22 @@
 }
 #download-progress.progress{
     width: 0;
+}
+ul {
+    padding: 0;
+}
+.line{
+    list-style: none;
+    height: 20px;
+    width: 100%;
+    border: 1px solid black;
+}
+.line-text {
+    display: none;
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border: none;
+    resize: none;
+    padding: 0;
 }

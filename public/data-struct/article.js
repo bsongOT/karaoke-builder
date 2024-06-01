@@ -6,6 +6,9 @@ class Article{
     get lastIndex(){
         return [this.data.length - 1, this.data[this.data.length - 1].length - 1];
     }
+    insertLine(index, ...values){
+        this.data.splice(index, 0, ...values);
+    }
     at(index){
         if (!isNaN(index)) return this.data[index];
         return this.data[index[0]]?.[index[1]];
@@ -31,9 +34,6 @@ class Article{
     }
     map(func){
         return this.data.map(func);
-    }
-    sentence(index){
-        return this.data[index[0]]?.map(a => a.word)?.filter((_,i) => i <= index[1]).join("");
     }
     findIndex(func){
         const idx1 = this.data.findIndex(l => l.some(func));

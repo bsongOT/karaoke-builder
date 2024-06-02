@@ -8,20 +8,40 @@
                 display: inline-flex;
                 align-items: center;
             }
-            main {
-                display: grid;
-
-            }
+			header {
+				display: flex;
+				gap: 10px;
+				margin-bottom: 10px;
+			}
+			#lyric {
+				width: 300px;
+				border: 1px solid black;
+			}
+			.keyboard {
+				height: 30px;
+			}
         </style>
     </head>
     <body>
         <main>
-            <canvas class="screen" id="canvas" width="800" height="450"></canvas>
-            <ul id="lyric"></ul>
+			<header>
+				<canvas class="screen" id="canvas" width="800" height="450"></canvas>
+            	<ul id="lyric"></ul>
+			</header>
             <input type="file" name="music" id="music" accept=".mp3, .wav">
             <audio id="audio"></audio>
         </main>
 
+		<div>
+			<button class="keyboard">←</button>
+			<button class="keyboard">Space</button>
+			<button class="keyboard">→</button>
+		</div>
+		<div>
+			<button class="keyboard">←Backspace</button>
+			<button class="keyboard">A</button>
+			<button class="keyboard">S</button>
+		</div>
         <div id="step4-container" class="container">
             변환 <div class="progress-bar" id="convert-progress">
                 <div class="progress"></div>
@@ -34,8 +54,8 @@
         <script src='https://unpkg.com/@ffmpeg/ffmpeg@0.9.3/dist/ffmpeg.min.js' crossorigin="anonymous"></script>
         <script src="public/videoConverter.js"></script>
         <script src="public/data.js" charset="UTF-8"></script>
-        <script src="public/sync.js"></script>
         <script src="public/main.js"></script>
+		<script src="public/sync.js"></script>
         <script src="public/util.js"></script>
     </body>
 </html>

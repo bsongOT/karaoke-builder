@@ -41,4 +41,10 @@ class Article{
 
         return [idx1, idx2];
     }
+	findLastIndex(func){
+		const idx1 = this.data.findLastIndex(l => l.some(func));
+        const idx2 = this.data[idx1]?.findLastIndex(func) ?? -1;
+		
+		return [idx1, idx2];
+	}
 }

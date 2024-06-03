@@ -1,3 +1,6 @@
+import {SyncInfo} from "./data.js"
+import {syncData} from "./context.js"
+
 export function syllabify(words) {
 	const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
     const arr = words.match(syllableRegex);

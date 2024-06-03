@@ -1,3 +1,6 @@
+const convertProgress = document.getElementById("convert-progress");
+const downloadProgress = document.getElementById("download-progress");
+
 /*
 const { createFFmpeg, fetchFile } = FFmpeg;
 const ffmpeg = createFFmpeg({

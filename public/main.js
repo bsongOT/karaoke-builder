@@ -1,26 +1,22 @@
+import {LyricView} from "./LyricView/LyricView.js"
+import {update} from "./update.js"
+import {syncData, isRunningMode, notRunningMode} from "./context.js"
+import {handle} from "./features.js"
+import {lineSentence, lineSentenceWidth} from "./util.js"
+
 const canvas = document.getElementById("canvas");
 const cx = canvas.getContext("2d");
 
-const musicAudio = document.getElementById("audio");
-const lyricText = document.getElementById("lyric");
-
-const convertProgress = document.getElementById("convert-progress");
-const downloadProgress = document.getElementById("download-progress");
+export const musicAudio = document.getElementById("audio");
 
 const memento = {
     audio: undefined, // audio file
-	syncData: new Article([[{word: " "}]])
+	//syncData: new Article([[{word: " "}]])
 }
-const infos = {
-    time: 0,
-	currentIndex: [0, 0]
-}
-
-let syncData = new Article([[{word: " "}]]); //obsolete
 
 document.getElementById("music").addEventListener("change", function(){
     const url = URL.createObjectURL(this.files[0]);
-    fileName = this.files[0].name.slice(0, this.files[0].name.lastIndexOf("."));
+    const fileName = this.files[0].name.slice(0, this.files[0].name.lastIndexOf("."));
     musicAudio.src = url;
     musicAudio.controls = "true";
     this.remove();
@@ -34,10 +30,29 @@ async function readyCanvas() {
     cx.font = "60px Happiness";
     cx.lineWidth = 4;
 
-    update(()=>draw(audio.currentTime, canvas, cx));
+    update(()=>{
+		if (!isRunningMode) return;
+		draw(audio.currentTime, canvas, cx)
+	});
 }
 LyricView();
-readyCanvas();
+readyCanvas()
+
+export function SyncDataDownloader(){
+	const downloader = document.createElement("button");
+	downloader.innerText = "Download";
+	downloader.onclick = () => {
+		const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(syncData));
+		const a = document.createElement("a");
+		a.setAttribute("href", dataStr);
+		a.setAttribute("download", "sync.json");
+		a.click();
+	}
+	
+	return downloader;
+}
+
+document.body.append(SyncDataDownloader())
 
 const barSpeed = 200; //px per second
 /**
@@ -112,3 +127,5 @@ const draw = (time, canvas, cx) => {
 	cx.fill()
 	cx.closePath();
 }
+
+document.addEventListener("keydown", handle);

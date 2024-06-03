@@ -1,11 +1,11 @@
 export class SyncInfo{
     word;
-    kind; // "man" | "woman"
+    kind; // "default" | "strong" | "weak"
     start;
     end;
     constructor(word, kind, start, end){
         this.word = word;
-        this.kind = kind ?? "man";
+        this.kind = kind ?? "default";
         this.start = start;
         this.end = end;
     }

@@ -1,3 +1,9 @@
+import {update} from "../update.js"
+import {lineSentence} from "../util.js"
+import {dataify} from "../util.js"
+import {Letter} from "./Letter.js"
+import {syncData} from "../context.js"
+
 /**
  * 
  * @param {{lineIndex:number}} info 

@@ -1,3 +1,18 @@
+header {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+#lyric {
+	width: 300px;
+	border: 1px solid black;
+	padding: 5px;
+	margin: 0;
+}
+.keyboard {
+	height: 30px;
+}
+
 .screen{
     border: 1px solid black;
 }
@@ -13,10 +28,6 @@
 #download-progress.progress{
     width: 0;
 }
-ul {
-    padding: 0;
-	margin: 0;
-}
 #canvas{
     grid-row: 1;
     grid-column: 1;
@@ -30,14 +41,12 @@ audio{
 	border-width: 0;
 }
 .synced-open{
-	border-top-width: 1px;
-	border-left-width: 1px;
+	background: linear-gradient(to bottom right, gold 0%, gold 50%, white 50%, white 100%);
 }
 .synced-close{
-	border-bottom-width: 1px;
-	border-right-width: 1px;
+	background: linear-gradient(to bottom right, white 0%, white 50%, gold 50%, gold 100%);
 }
-.synced-open.synced-close {
+.synced-open.synced-close{
 	background: gold;
 }
 .current{
@@ -48,6 +57,7 @@ audio{
     list-style: none;
     width: 100%;
 	min-height: 20px;
+	margin-bottom: 5px;
 }
 .line-text {
     display: none;

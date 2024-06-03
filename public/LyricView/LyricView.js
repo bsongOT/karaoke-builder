@@ -1,3 +1,7 @@
+import {update} from "../update.js"
+import {Line} from "./Line.js"
+import {syncData} from "../context.js"
+
 export function LyricView(){
     const lyricView = document.querySelector("#lyric")
     let childPairs = [];
@@ -6,10 +10,10 @@ export function LyricView(){
         if (childPairs.length < syncData.lastIndex[0] + 1) {
             childPairs.push(
                 ...Array(syncData.lastIndex[0] + 1 - childPairs.length).fill(0).map((_, i) => {
-                const info = {lineIndex: i};
+                const cinfo = {lineIndex: i};
                 return {
-                    element: Line(info),
-                    info: info
+                    element: Line(cinfo),
+                    info: cinfo
                 }
             }))
         }

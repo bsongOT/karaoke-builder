@@ -1,3 +1,7 @@
+import {update} from "../update.js"
+import {syncData} from "../context.js"
+import {infos} from "../context.js"
+
 /**
  * 
  * @param {{

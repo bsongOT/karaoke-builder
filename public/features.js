@@ -1,6 +1,7 @@
-const syncLine = document.getElementById("syncs");
+import {syncData, infos} from "./context.js"
+import {musicAudio} from "./main.js"
 
-function eraseSync(){
+export function eraseSync(){
 	if (infos.currentIndex[0] === 0 && infos.currentIndex[1] === 0) return;
 
 	infos.currentIndex = syncData.prevIndex(infos.currentIndex);
@@ -8,7 +9,7 @@ function eraseSync(){
 	syncData.at(infos.currentIndex).start = undefined;
 	syncData.at(infos.currentIndex).end = undefined;
 }
-function insertSync(){
+export function insertSync(){
 	const current = syncData.at(infos.currentIndex);
 	const prev = syncData.prev(infos.currentIndex);
 	
@@ -20,23 +21,23 @@ function insertSync(){
 
 	infos.currentIndex = syncData.nextIndex(infos.currentIndex);
 }
-function closeSync(){
+export function closeSync(){
 	syncData.prev(infos.currentIndex).end = musicAudio.currentTime;
 }
-function togglePlay(){
+export function togglePlay(){
 	if (!musicAudio.controls) return;
 	if (musicAudio.paused) musicAudio.play();
 	else musicAudio.pause()
 }
-function goBack(){
+export function goBack(){
 	if (!musicAudio.controls) return;
 	musicAudio.currentTime -= 1;
 }
-function goForward(){
+export function goForward(){
 	if (!musicAudio.controls) return;
 	musicAudio.currentTime += 1;
 }
-const handle = (e)=>{
+export const handle = (e)=>{
 	switch(e.code){
 		case "ArrowLeft": return goBack();
 		case "ArrowRight": return goForward();
@@ -46,4 +47,3 @@ const handle = (e)=>{
 		case "KeyS": return closeSync();
 	}
 };
-document.addEventListener("keydown", handle);

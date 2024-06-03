@@ -1,12 +1,11 @@
-const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
-
-function syllabify(words) {
+export function syllabify(words) {
+	const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
     const arr = words.match(syllableRegex);
     if (arr) return arr;
     return [words];
 }
 
-function toSylls(sentence){
+export function toSylls(sentence){
     const words = sentence.split(" ");
     let syllables = [];
 
@@ -26,4 +25,26 @@ function toSylls(sentence){
     }
 
     return syllables
+}
+
+export function lineSentence(line, to){
+	if (!syncData.line(line)) return ""
+    const sylls = syncData.line(line).map(d => d.word)
+    if (!isNaN(to)) return sylls.slice(0, to + 1).join("");
+    return sylls.join("");
+}
+
+export function dataify(sentence){
+    const sign = [".", ",", "!", "?"];
+    const refinedSentence = sentence.split("").filter(v => !sign.includes(v)).join("");
+    
+    return toSylls(refinedSentence)
+}
+
+export function lineSentenceWidth(cx, idx, shouldTrim){
+	if (idx[0] < 0 || idx[1] < 0) return 0;
+	const sentence = lineSentence(idx[0], idx[1]);
+		
+	if (shouldTrim) return cx.measureText(sentence.trim()).width;
+	return cx.measureText(sentence).width;
 }

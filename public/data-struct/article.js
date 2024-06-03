@@ -1,4 +1,4 @@
-class Article{
+export class Article{
     data;
     constructor(data){
         this.data = data;

@@ -17,10 +17,37 @@ ul {
     padding: 0;
 	margin: 0;
 }
+#canvas{
+    grid-row: 1;
+    grid-column: 1;
+}
+audio{
+    width: 100%;
+}
+.letter {
+	border-color: goldenrod;
+	border-style: solid;
+	border-width: 0;
+}
+.synced-open{
+	border-top-width: 1px;
+	border-left-width: 1px;
+}
+.synced-close{
+	border-bottom-width: 1px;
+	border-right-width: 1px;
+}
+.synced-open.synced-close {
+	background: gold;
+}
+.current{
+    box-shadow: 0 0 0 2px orange inset;
+    background: antiquewhite;
+}
 .line{
     list-style: none;
-    height: 20px;
     width: 100%;
+	min-height: 20px;
 }
 .line-text {
     display: none;

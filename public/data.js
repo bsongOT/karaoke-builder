@@ -1,4 +1,4 @@
-class SyncInfo{
+export class SyncInfo{
     word;
     kind; // "man" | "woman"
     start;

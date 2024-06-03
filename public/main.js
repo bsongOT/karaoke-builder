@@ -9,131 +9,14 @@ const downloadProgress = document.getElementById("download-progress");
 
 const memento = {
     audio: undefined, // audio file
+	syncData: new Article([[{word: " "}]])
 }
 const infos = {
     time: 0,
 	currentIndex: [0, 0]
 }
 
-let syncData = new Article([[{word: " "}]]);
-let fileName = "my";
-
-const updateQueue = [];
-setInterval(() => {
-	for (const q of updateQueue) q()
-}, 25)
-function update(f){
-    updateQueue.push(f);
-}
-function LyricView(){
-    const lyricView = document.querySelector("#lyric")
-    let childPairs = [];
-
-    update(() => {
-        if (childPairs.length < syncData.lastIndex[0] + 1) {
-            childPairs.push(
-                ...Array(syncData.lastIndex[0] + 1 - childPairs.length).fill(0).map((_, i) => {
-                const info = {lineIndex: i};
-                return {
-                    element: Line(info),
-                    info: info
-                }
-            }))
-        }
-        else if (childPairs.length > syncData.lastIndex[0] + 1) {
-            childPairs.splice(childPairs.length - 1, childPairs.length - syncData.lastIndex[0] - 1);
-        }
-        for (let i = 0; i < childPairs.length; i++){
-            childPairs[i].info.lineIndex = i;
-        }
-        if (lyricView.children.length !== childPairs.length){
-            lyricView.innerHTML = "";
-            lyricView.append(...childPairs.map(c => c.element))
-        }
-    })
-
-    return lyricView;
-}
-/**
- * 
- * @param {{lineIndex:number}} info 
- * @returns 
- */
-function Line(info){
-    const line = document.createElement("li");
-    const view = document.createElement("div");
-    const text = document.createElement("textarea");
-
-    line.classList.add("line");
-    text.classList.add("line-text");
-
-    line.onclick = function(){
-        view.style.display = "none";
-        text.style.display = "inline-block";
-        text.focus();
-		text.value = lineSentence(info.lineIndex);
-    }
-    text.onblur = function(){
-        view.style.display = "block";
-        text.style.display = "none";
-    }
-
-    text.oninput = () => {
-        const dataLine = syncData.line(info.lineIndex);
-        const values = text.value.split("\n").map(v => v.trim()).filter(v => v !== "");
-        dataLine.splice(0, dataLine.length);
-        dataLine.push(...dataify(values[0]))
-
-        if (values.length > 1)
-            syncData.insertLine(info.lineIndex + 1, ...values.slice(1).map(v => dataify(v)));
-        text.value = values[0];
-    }
-    
-    update(()=> {
-        const elementSentence = Array.from(view.children).map(c => c.innerText).join("");
-        const dataSentence = lineSentence(info.lineIndex);
-
-        if (elementSentence === dataSentence.trim()) return;
-
-        view.innerHTML = "";
-        view.append(...syncData.line(info.lineIndex).map((_, i) => Letter({
-            lineIndex: info.lineIndex,
-            letterIndex: i
-        })))
-    })
-
-    line.append(
-        view,
-        text
-    )
-
-    return line;
-}
-/**
- * 
- * @param {{
- *   lineIndex:number, 
- *   letterIndex:number
- * }} info 
- */
-function Letter(info){
-    const letter = document.createElement("span");
-
-    update(() => {
-        if (!document.contains(letter)) return;
-        const data = syncData.at([info.lineIndex, info.letterIndex]);
-        
-        if (data.word !== letter.innerText) 
-            letter.innerText = data.word;
-        
-		let className = "";
-        className += data.start && data.end ? "synced" : ""
-		className += info.lineIndex === infos.currentIndex[0] && info.letterIndex === infos.currentIndex[1] ? "current" : ""
-		letter.className = className;
-    })
-
-    return letter;
-}
+let syncData = new Article([[{word: " "}]]); //obsolete
 
 document.getElementById("music").addEventListener("change", function(){
     const url = URL.createObjectURL(this.files[0]);
@@ -142,18 +25,6 @@ document.getElementById("music").addEventListener("change", function(){
     musicAudio.controls = "true";
     this.remove();
 });
-function lineSentence(line, to){
-	if (!syncData.line(line)) return ""
-    const sylls = syncData.line(line).map(d => d.word)
-    if (!isNaN(to)) return sylls.slice(0, to + 1).join("");
-    return sylls.join("");
-}
-function dataify(sentence){
-    const sign = [".", ",", "!", "?"];
-    const refinedSentence = sentence.split("").filter(v => !sign.includes(v)).join("");
-    
-    return toSylls(refinedSentence)
-}
 
 async function readyCanvas() {
     const font = new FontFace("Happiness", "url(public/fonts/Happiness-Sans-Title.woff2)");
@@ -165,20 +36,9 @@ async function readyCanvas() {
 
     update(()=>draw(audio.currentTime, canvas, cx));
 }
-
-function convertClick(){
-    convert(canvas, draw, musicAudio.duration, fileName);
-}
 LyricView();
 readyCanvas();
 
-function lineSentenceWidth(cx, idx, shouldTrim){
-	if (idx[0] < 0 || idx[1] < 0) return 0;
-	const sentence = lineSentence(idx[0], idx[1]);
-		
-	if (shouldTrim) return cx.measureText(sentence.trim()).width;
-	return cx.measureText(sentence).width;
-}
 const barSpeed = 200; //px per second
 /**
  * 

@@ -1,9 +1,10 @@
+/*
 const { createFFmpeg, fetchFile } = FFmpeg;
 const ffmpeg = createFFmpeg({
     log: false,
     corePath: "public/ffmpeg-core.js"
-});
-
+});*/
+/*
 async function convertToMp4(blob, fileName, duration){
     await ffmpeg.load();
     ffmpeg.FS("writeFile", "my.webm", await fetchFile(blob));
@@ -17,7 +18,7 @@ async function convertToMp4(blob, fileName, duration){
     })
     await ffmpeg.run("-i", "my.webm", `${fileName}.mp4`);
     return ffmpeg.FS("readFile", `${fileName}.mp4`);
-}
+}*/
 
 async function downloadFile(mp4, fileName){
     const blob = new Blob([mp4.buffer], {type: "video/mp4"});
@@ -29,6 +30,7 @@ async function downloadFile(mp4, fileName){
     a.click();
 }
 
+/*
 function convert(canvas, drawFunc, endTime, fileName){
     let stream = canvas.captureStream(60);
     let recordedChunks = [];
@@ -69,4 +71,4 @@ function convert(canvas, drawFunc, endTime, fileName){
     }
 
     anim();
-}
+}*/

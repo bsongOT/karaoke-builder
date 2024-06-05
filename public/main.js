@@ -42,7 +42,7 @@ export function SyncDataDownloader(){
 	const downloader = document.createElement("button");
 	downloader.innerText = "Download";
 	downloader.onclick = () => {
-		const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(syncData));
+		const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(syncData.data));
 		const a = document.createElement("a");
 		a.setAttribute("href", dataStr);
 		a.setAttribute("download", "sync.json");
@@ -54,14 +54,43 @@ export function SyncDataDownloader(){
 
 document.body.append(SyncDataDownloader())
 
+export function getDataURLs(){
+	const dataURLs = [];
+	const deadline = 3;//musicAudio.duration;
+
+	for (let i = 0; i < Math.floor(deadline * 24); i++){
+		draw(i / 24)
+		dataURLs.push(canvas.toDataURL("image/jpeg", 0.2))
+	}
+	
+	return dataURLs;
+}
+
+async function sendURLs(){
+	notRunningMode();
+	const urls = getDataURLs();
+	const res = await fetch('/convert', {
+	    method: "POST",
+	    headers: {
+			"content-type": "application/json",
+	  	},
+	  	body: JSON.stringify(urls)
+	})
+	console.log(await res.json())
+}
+
+const sendURLsButton = document.createElement("button");
+sendURLsButton.innerText = "send";
+document.body.append(sendURLsButton)
+
+sendURLsButton.onclick = sendURLs
+
 const barSpeed = 200; //px per second
 /**
  * 
  * @param {number} time 
- * @param {HTMLCanvasElement} canvas 
- * @param {CanvasRenderingContext2D} cx 
  */
-const draw = (time, canvas, cx) => {
+const draw = (time) => {
     cx.clearRect(0, 0, canvas.width, canvas.height);
     cx.beginPath();
 	

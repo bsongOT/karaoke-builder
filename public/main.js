@@ -4,6 +4,33 @@ import {syncData, isRunningMode, notRunningMode} from "./context.js"
 import {handle} from "./features.js"
 import {lineSentence, lineSentenceWidth} from "./util.js"
 
+import { FFmpeg } from "./assets/ffmpeg/package/dist/esm/index.js";
+import { fetchFile } from "./assets/util/package/dist/esm/index.js"
+
+const ffmpeg = new FFmpeg()
+
+async function convert(){
+	const dataURLs = getDataURLs();
+	/*
+	for (let i = 0; i < dataURLs.length; i++){
+		fs.writeFileSync(`processing_images/scene${("00000" + i).slice(-5)}.jpg`, Buffer.from(dataURLs[i].split(",")[1], 'base64'));
+	}*/
+	await ffmpeg.load({
+		coreURL: "/public/assets/core/package/dist/esm/ffmpeg-core.js"
+	});
+	await ffmpeg.createDir("./scenes")
+	for (let i = 0; i < dataURLs.length; i++){
+		await ffmpeg.writeFile(`./scenes/scene${("0000" + i).slice(-5)}.jpg`, await fetchFile(dataURLs[i]))
+	}
+	const input = 'scene%05d.jpg';
+	const output = "output.mp4";
+	const args = `-start_number 1 -i ${input} -c:v libx264 ${output}`;
+	await ffmpeg.exec(args.split(" "));
+	const data = await ffmpeg.readFile(output);
+	console.log(data);
+	//await ffmpeg.run()
+}
+
 const canvas = document.getElementById("canvas");
 const cx = canvas.getContext("2d");
 
@@ -56,11 +83,11 @@ document.body.append(SyncDataDownloader())
 
 export function getDataURLs(){
 	const dataURLs = [];
-	const deadline = 3;//musicAudio.duration;
+	const deadline = 1;//musicAudio.duration;
 
 	for (let i = 0; i < Math.floor(deadline * 24); i++){
 		draw(i / 24)
-		dataURLs.push(canvas.toDataURL("image/jpeg", 0.2))
+		dataURLs.push(canvas.toDataURL("image/jpeg"))
 	}
 	
 	return dataURLs;
@@ -74,7 +101,9 @@ async function sendURLs(){
 	    headers: {
 			"content-type": "application/json",
 	  	},
-	  	body: JSON.stringify(urls)
+	  	body: JSON.stringify({
+			urls: urls
+		})
 	})
 	console.log(await res.json())
 }
@@ -83,7 +112,7 @@ const sendURLsButton = document.createElement("button");
 sendURLsButton.innerText = "send";
 document.body.append(sendURLsButton)
 
-sendURLsButton.onclick = sendURLs
+sendURLsButton.onclick = convert//sendURLs
 
 const barSpeed = 200; //px per second
 /**
@@ -92,11 +121,15 @@ const barSpeed = 200; //px per second
  */
 const draw = (time) => {
     cx.clearRect(0, 0, canvas.width, canvas.height);
-    cx.beginPath();
+	cx.beginPath();
 	
     const idx = syncData.findLastIndex(a => a.start < time);
 	const sync = syncData.at(idx);
-	if(!sync?.start) return;
+	if(!sync?.start) {
+		cx.fillStyle = "white";
+		cx.fillRect(0, 0, canvas.width, canvas.height);
+		return;
+	}
 
     const before = lineSentenceWidth(cx, [idx[0], idx[1] - 1]);
     const now = lineSentenceWidth(cx, idx, true);
@@ -154,6 +187,12 @@ const draw = (time) => {
 	cx.fillStyle = "black";
 	cx.rect(398, 25, 4, 55)
 	cx.fill()
+	cx.closePath();
+	
+	cx.beginPath();
+	cx.globalCompositeOperation = "destination-over";
+	cx.fillStyle = "white";
+	cx.fillRect(0, 0, canvas.width, canvas.height);
 	cx.closePath();
 }
 

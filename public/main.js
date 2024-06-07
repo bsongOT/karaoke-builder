@@ -10,25 +10,42 @@ import { fetchFile } from "./assets/util/package/dist/esm/index.js"
 const ffmpeg = new FFmpeg()
 
 async function convert(){
+	notRunningMode();
+	const musicAudio = document.getElementById("audio");
 	const dataURLs = getDataURLs();
-	/*
-	for (let i = 0; i < dataURLs.length; i++){
-		fs.writeFileSync(`processing_images/scene${("00000" + i).slice(-5)}.jpg`, Buffer.from(dataURLs[i].split(",")[1], 'base64'));
-	}*/
 	await ffmpeg.load({
 		coreURL: "/public/assets/core/package/dist/esm/ffmpeg-core.js"
 	});
+	ffmpeg.on("progress", ({progress, time}) => {
+		console.log(progress, time);
+	})
 	await ffmpeg.createDir("./scenes")
 	for (let i = 0; i < dataURLs.length; i++){
 		await ffmpeg.writeFile(`./scenes/scene${("0000" + i).slice(-5)}.jpg`, await fetchFile(dataURLs[i]))
 	}
-	const input = 'scene%05d.jpg';
-	const output = "output.mp4";
+	await ffmpeg.writeFile('music.mp3', await fetchFile(musicAudio.src))
+	
+	const input = './scenes/scene%05d.jpg';
+	const output = "animation.mp4";
 	const args = `-start_number 1 -i ${input} -c:v libx264 ${output}`;
 	await ffmpeg.exec(args.split(" "));
-	const data = await ffmpeg.readFile(output);
-	console.log(data);
-	//await ffmpeg.run()
+	await ffmpeg.exec([
+	  '-async', "1",
+      '-i', "animation.mp4",
+      '-i', "music.mp3",
+	  '-shortest', ///
+      "output.mp4"
+    ]);
+	const data = await ffmpeg.readFile("output.mp4");
+
+	const url = URL.createObjectURL(
+		new Blob([data.buffer], { type: "video/mp4" })
+	);
+	const a = document.createElement("a")
+    a.href = url
+    a.download = 'output.mp4'
+    a.click()
+    a.remove()
 }
 
 const canvas = document.getElementById("canvas");
@@ -83,7 +100,7 @@ document.body.append(SyncDataDownloader())
 
 export function getDataURLs(){
 	const dataURLs = [];
-	const deadline = 1;//musicAudio.duration;
+	const deadline = 30//musicAudio.duration;
 
 	for (let i = 0; i < Math.floor(deadline * 24); i++){
 		draw(i / 24)

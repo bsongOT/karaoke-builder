@@ -8,6 +8,8 @@ header {
 	border: 1px solid black;
 	padding: 5px;
 	margin: 0;
+	height: 440px;
+	overflow-y: scroll;
 }
 .keyboard {
 	height: 30px;

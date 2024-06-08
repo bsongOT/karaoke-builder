@@ -1,7 +1,11 @@
+main {
+	max-width: 1120px;
+}
 header {
 	display: flex;
 	gap: 10px;
 	margin-bottom: 10px;
+	justify-content: center;
 }
 #lyric {
 	width: 300px;
@@ -9,7 +13,7 @@ header {
 	padding: 5px;
 	margin: 0;
 	height: 440px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 .keyboard {
 	height: 30px;
@@ -25,14 +29,8 @@ header {
 }
 .progress{
     height: 100%;
+	width: 0;
     background: cornflowerblue;
-}
-#download-progress.progress{
-    width: 0;
-}
-#canvas{
-    grid-row: 1;
-    grid-column: 1;
 }
 audio{
     width: 100%;

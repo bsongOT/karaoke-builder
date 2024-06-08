@@ -8,32 +8,36 @@ import { FFmpeg } from "./assets/ffmpeg/package/dist/esm/index.js";
 import { fetchFile } from "./assets/util/package/dist/esm/index.js"
 
 const ffmpeg = new FFmpeg()
+const canvas = document.getElementById("canvas");
+const cx = canvas.getContext("2d");
 
-async function convert(){
+export const musicAudio = document.getElementById("audio");
+
+LyricView();
+readyCanvas()
+
+async function convert(events){
 	notRunningMode();
-	const musicAudio = document.getElementById("audio");
-	const dataURLs = getDataURLs();
+	const blobs = await getBlobs(events);
 	await ffmpeg.load({
 		coreURL: "/public/assets/core/package/dist/esm/ffmpeg-core.js"
 	});
-	ffmpeg.on("progress", ({progress, time}) => {
-		console.log(progress, time);
+	ffmpeg.on("progress", ({progress}) => {
+		events?.onProgress(Math.min(1, progress));
 	})
 	await ffmpeg.createDir("./scenes")
-	for (let i = 0; i < dataURLs.length; i++){
-		await ffmpeg.writeFile(`./scenes/scene${("0000" + i).slice(-5)}.jpg`, await fetchFile(dataURLs[i]))
+	for (let i = 0; i < blobs.length; i++){
+		await ffmpeg.writeFile(`./scenes/scene${("0000" + i).slice(-5)}.jpg`, await fetchFile(blobs[i]))
 	}
 	await ffmpeg.writeFile('music.mp3', await fetchFile(musicAudio.src))
 	
 	const input = './scenes/scene%05d.jpg';
 	const output = "animation.mp4";
-	const args = `-start_number 1 -i ${input} -c:v libx264 ${output}`;
+	const args = `-framerate 24 -start_number 1 -i ${input} -c:v libx264 ${output}`;
 	await ffmpeg.exec(args.split(" "));
 	await ffmpeg.exec([
-	  '-async', "1",
       '-i', "animation.mp4",
       '-i', "music.mp3",
-	  '-shortest', ///
       "output.mp4"
     ]);
 	const data = await ffmpeg.readFile("output.mp4");
@@ -41,21 +45,12 @@ async function convert(){
 	const url = URL.createObjectURL(
 		new Blob([data.buffer], { type: "video/mp4" })
 	);
+	
 	const a = document.createElement("a")
     a.href = url
     a.download = 'output.mp4'
     a.click()
     a.remove()
-}
-
-const canvas = document.getElementById("canvas");
-const cx = canvas.getContext("2d");
-
-export const musicAudio = document.getElementById("audio");
-
-const memento = {
-    audio: undefined, // audio file
-	//syncData: new Article([[{word: " "}]])
 }
 
 document.getElementById("music").addEventListener("change", function(){
@@ -79,8 +74,6 @@ async function readyCanvas() {
 		draw(audio.currentTime, canvas, cx)
 	});
 }
-LyricView();
-readyCanvas()
 
 export function SyncDataDownloader(){
 	const downloader = document.createElement("button");
@@ -97,45 +90,40 @@ export function SyncDataDownloader(){
 }
 
 document.body.append(SyncDataDownloader())
-
-export function getDataURLs(){
-	const dataURLs = [];
-	const deadline = 30//musicAudio.duration;
+function toBlobAsync(){
+	return new Promise((resolve) => {
+		canvas.toBlob(resolve, "image/jpeg")
+	})
+}
+export async function getBlobs(events){
+	const blobs = [];
+	const deadline = musicAudio.duration;
 
 	for (let i = 0; i < Math.floor(deadline * 24); i++){
 		draw(i / 24)
-		dataURLs.push(canvas.toDataURL("image/jpeg"))
+		blobs.push(await toBlobAsync());
+		events?.onProgress(i / Math.floor(deadline * 24))
 	}
 	
-	return dataURLs;
+	return blobs;
 }
 
-async function sendURLs(){
-	notRunningMode();
-	const urls = getDataURLs();
-	const res = await fetch('/convert', {
-	    method: "POST",
-	    headers: {
-			"content-type": "application/json",
-	  	},
-	  	body: JSON.stringify({
-			urls: urls
-		})
+function ConvertButton(){
+	const btn = document.createElement("button");
+	const progress = document.querySelector("#convert-progress > .progress");
+	
+	btn.innerText = "convert";
+	btn.onclick = () => convert({
+		onProgress: p => {
+			progress.style.width = `${p * 100}%`
+		}
 	})
-	console.log(await res.json())
+	return btn;
 }
+document.body.append(ConvertButton())
 
-const sendURLsButton = document.createElement("button");
-sendURLsButton.innerText = "send";
-document.body.append(sendURLsButton)
+const barSpeed = 150; //px per second
 
-sendURLsButton.onclick = convert//sendURLs
-
-const barSpeed = 200; //px per second
-/**
- * 
- * @param {number} time 
- */
 const draw = (time) => {
     cx.clearRect(0, 0, canvas.width, canvas.height);
 	cx.beginPath();

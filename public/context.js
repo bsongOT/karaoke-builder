@@ -1,4 +1,5 @@
 import {Article} from "./data-struct/article.js"
+import {LyricView} from "./LyricView/LyricView.js"
 
 export const infos = {
     time: 0,
@@ -6,4 +7,8 @@ export const infos = {
 }
 export let isRunningMode = true;
 export const notRunningMode = () => isRunningMode = false;
-export let syncData = new Article([[{word: " "}]]); //obsolete
+export const syncData = new Article([[{word: " "}]]);
+
+export const lyricView = LyricView();
+export const canvasInfo = {};
+export const canvas = SceneCanvas(canvasInfo);

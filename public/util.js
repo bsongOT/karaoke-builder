@@ -51,3 +51,11 @@ export function lineSentenceWidth(cx, idx, shouldTrim){
 	if (shouldTrim) return cx.measureText(sentence.trim()).width;
 	return cx.measureText(sentence).width;
 }
+
+export function download(url, name){
+	const a = document.createElement("a")
+    a.href = url
+    a.download = name;
+    a.click()
+    a.remove()
+}

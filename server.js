@@ -1,49 +1,37 @@
-const fs = require("fs")
-const express = require('express');
-const app = express();
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
-const ffmpeg = require('fluent-ffmpeg');
+import express, { json, urlencoded } from 'express';
+import multer, { diskStorage } from "multer";
+import convert from "./Music-Remover/controllers/convert.js"
+import fetchMR from "./Music-Remover/controllers/fetchMR.js"
+import { existsSync, mkdirSync } from "fs";
 
-ffmpeg.setFfmpegPath(ffmpegPath);
+const app = express();
+
+const storage = diskStorage({
+	filename: function (req, file, cb) {
+	  cb(null, file.originalname)
+	},
+	destination: function (req, file, cb) {
+	  if (!existsSync("./workspace")) mkdirSync("./workspace");
+	  cb(null, './workspace')
+	},
+  })  
+const upload = multer({ storage })
 
 app.use("/public", express.static('./public/'));
-app.use("/node_modules/buffer", express.static('./buffer/'));
-app.use(express.json({ limit : "50mb" }));
-app.use(express.urlencoded({ limit:"50mb", extended: false }));
+app.use(json({ limit : "50mb" }));
+app.use(urlencoded({ limit:"50mb", extended: false }));
+
+app.get('', function(req, res){
+    const dirname = import.meta.dirname;
+	res.sendFile(dirname + "/public/index.html");
+});
+
+app.post('/remove-vocal', upload.any("file"), convert)
+app.get('/fetch-mr', (req, res) => {
+	const dirname = import.meta.dirname + "/workspace/mr.mp3";
+	fetchMR(dirname, res)
+})
 
 app.listen(8080, function(){
     console.log("listening on 8080");
-});
-
-app.post('/convert', function(req, res){
-	const dataURLs = req.body;
-	
-	if (!fs.existsSync("processing_images")) fs.mkdirSync("processing_images");
-	for (let i = 0; i < dataURLs.length; i++){
-		fs.writeFileSync(`processing_images/scene${("00000" + i).slice(-5)}.jpg`, Buffer.from(dataURLs[i].split(",")[1], 'base64'));
-	}
-	
-	ffmpeg()
-		.input("./processing_images/scene%05d.jpg")
-		.save("./test.mp4")
-		.fps(24)
-		.frames(dataURLs.length)
-		.on('end', () => {
-			fs.rmSync("./processing_images", { recursive: true });
-			ffmpeg()
-				.addInput("./test.mp4")
-				.addInput("./audio.mp3")
-				.save("./test2.mp4")
-			res.status(200).json({
-				message: "download complete"
-			})
-		})
-		.on('error', (err) => {
-			fs.rmSync("./processing_images", { recursive: true });
-			console.log(err);
-		});
-})
-
-app.get('', function(req, res){
-    res.sendFile(__dirname + "/public/index.html");
 });

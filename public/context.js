@@ -1,14 +1,46 @@
 import {Article} from "./data-struct/article.js"
 import {LyricView} from "./LyricView/LyricView.js"
+import { SceneCanvas } from "./SceneCanvas.js";
+
+const musicAudio = document.getElementById("audio");
 
 export const infos = {
-    time: 0,
 	currentIndex: [0, 0]
 }
 export let isRunningMode = true;
 export const notRunningMode = () => isRunningMode = false;
 export const syncData = new Article([[{word: " "}]]);
 
+export const audio = {
+    get time(){
+        return musicAudio.currentTime;
+    },
+    set time(v){
+        musicAudio.currentTime = v;
+    },
+    get src(){
+        return musicAudio.src;
+    },
+    set src(v){
+        musicAudio.src = v;
+    },
+    get duration(){
+        return musicAudio.duration;
+    },
+    get controls(){
+        return musicAudio.controls
+    },
+    set controls(v){
+        musicAudio.controls = true;
+    },
+    get paused(){
+        return musicAudio.paused;
+    },
+    play: () => musicAudio.play(),
+    pause: () => musicAudio.pause()
+}
+
 export const lyricView = LyricView();
 export const canvasInfo = {};
 export const canvas = SceneCanvas(canvasInfo);
+export const draw = canvasInfo.draw;

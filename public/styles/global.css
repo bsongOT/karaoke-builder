@@ -1,11 +1,41 @@
-main {
-	max-width: 1120px;
-}
-header {
-	display: flex;
+#workspace {
+	display: none;
 	gap: 10px;
-	margin-bottom: 10px;
 	justify-content: center;
+	margin-top: 10px;
+	margin-bottom: 100px;
+}
+main {
+	display: flex;
+	padding: 0;
+	width: 800px;
+    flex-direction: column;
+    gap: 20px;
+}
+main > .keyboard-box {
+	display: flex;
+	gap: 20px;
+	padding: 0 50px 0 50px;
+}
+main > .keyboard-box > :nth-child(2){
+	flex-grow: 1;
+}
+aside {
+	display: flex;
+	gap: 20px;
+	flex-direction: column;
+}
+aside > .keyboard-box {
+	display: flex;
+	gap: 20px;
+	padding: 0 30px 0 30px;
+}
+aside > .keyboard-box > :last-child{
+	flex-grow: 1;
+}
+#file {
+	display: block;
+	margin: 0 auto;
 }
 #lyric {
 	width: 300px;
@@ -16,7 +46,13 @@ header {
 	overflow-y: auto;
 }
 .keyboard {
-	height: 30px;
+	width: 50px;
+	height: 50px;
+	border: 1px solid #bbb;
+	font-size: 16px;
+}
+.keyboard:active, .keyboard.pressed {
+	background: #ddd;
 }
 
 .screen{
@@ -26,6 +62,8 @@ header {
     width: 300px;
     height: 30px;
     border: 1px solid;
+	display: block;
+	margin: 0 auto;
 }
 .progress{
     height: 100%;
@@ -71,4 +109,8 @@ audio{
 	font-size: 16px;
 	overflow-y: hidden;
 	background: none;
+}
+.convert-button {
+	display: block;
+	margin: 0 auto;
 }

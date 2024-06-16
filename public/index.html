@@ -4,26 +4,31 @@
         <link rel="stylesheet" href="public/styles/global.css">
     </head>
     <body>
-        <main>
-			<header>
+		<div>
+			<input type="file" id="file" accept=".mp3">
+		</div>
+		<div id="workspace">
+			<main>
 				<canvas class="screen" id="canvas" width="800" height="450"></canvas>
-            	<ul id="lyric"></ul>
-			</header>
-            <input type="file" name="music" id="music" accept=".mp3, .wav">
-            <audio id="audio"></audio>
-        </main>
+				<audio id="audio"></audio>
+				<div class="keyboard-box">
+					<button id="key-arrow-left" class="keyboard" title="Go 1 second ago">←</button>
+					<button id="key-spacebar" class="keyboard" title="Stop audio">Space</button>
+					<button id="key-arrow-right" class="keyboard" title="Go 1 second later">→</button>
+				</div>
+			</main>
 
-		<div>
-			<button class="keyboard">←</button>
-			<button class="keyboard">Space</button>
-			<button class="keyboard">→</button>
+			<aside>
+				<ul id="lyric"></ul>
+				<div class="keyboard-box">
+					<button id="key-a" class="keyboard" title="Open new sync">A</button>
+					<button id="key-s" class="keyboard" title="Close current sync">S</button>
+					<button id="key-backspace" class="keyboard" title="Delete current sync">←Backspace</button>
+				</div>
+			</aside>
 		</div>
-		<div>
-			<button class="keyboard">A</button>
-			<button class="keyboard">S</button>
-			<button class="keyboard">←Backspace</button>
-		</div>
-		<div class="progress-bar" id="convert-progress">
+		
+		<div class="progress-bar" id="convert-progress" style="display:none;">
 			<div class="progress"></div>
 		</div>
         <script type="module" src="public/main.js"></script>

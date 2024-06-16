@@ -1,4 +1,4 @@
-import {syncData, notRunningMode} from "./context.js"
+import { syncData, notRunningMode, draw, audio, canvas } from "./context.js"
 import { FFmpeg } from "./assets/ffmpeg/package/dist/esm/index.js";
 import { fetchFile } from "./assets/util/package/dist/esm/index.js"
 
@@ -14,7 +14,7 @@ export async function convert(events){
 	ffmpeg.on("progress", ({progress}) => {
 		events?.onProgress(Math.min(1, progress));
 	})
-	await ffmpeg.writeFile('music.mp3', await fetchFile(musicAudio.src))
+	await ffmpeg.writeFile('music.mp3', await fetchFile(audio.src))
 	await ffmpeg.writeFile("mr.mp3", await fetchFile(mrLink))
 	await ffmpeg.createDir("./scenes")
 	for (let i = 0; i < blobs.length; i++){
@@ -22,20 +22,22 @@ export async function convert(events){
 	}
 	
 	const animationCommand = `-framerate 24 -start_number 1 -i ./scenes/scene%05.jpg -c:v libx264 animation.mp4`;
-	const singAlongCommand = '-i animation.mp4 -i music.mp3 sing-along.mp4';
+	const singAlongCommand = '-i animation.mp4 -i music.mp3 singalong.mp4';
 	const karaokeCommand = "-i animation.mp4 -i mr.mp3 karaoke.mp4"
 
 	await ffmpeg.exec(animationCommand.split(" "));
 	await ffmpeg.exec(singAlongCommand.split(" "));
 	await ffmpeg.exec(karaokeCommand.split(" "));
 
-	const singAlong = await ffmpeg.readFile("sing-along.mp4");
+	const singAlong = await ffmpeg.readFile("singalong.mp4");
+	console.log(2)
 	const karaoke = await ffmpeg.readFile("karaoke.mp4");
+	console.log(3)
 
 	return {
 		singAlong: URL.createObjectURL(new Blob([singAlong.buffer], { type: "video/mp4" })),
 		karaoke: URL.createObjectURL(new Blob([karaoke.buffer], { type: "video/mp4" })),
-		music: musicAudio.src,
+		music: audio.src,
 		mr: mrLink,
 		syncData: getSyncDataURL()
 	}
@@ -48,12 +50,12 @@ function toBlobAsync(canvas){
 }
 async function getBlobs(events){
 	const blobs = [];
-	const deadline = musicAudio.duration;
+	const deadline = audio.duration;
 
 	for (let i = 0; i < Math.floor(deadline * 24); i++){
-		canvasInfo.draw(i / 24)
-		blobs.push(await toBlobAsync());
-		events?.onProgress(i / Math.floor(deadline * 24))
+		draw(i / 24)
+		blobs.push(await toBlobAsync(canvas));
+		events?.onProgress?.(i / Math.floor(deadline * 24))
 	}
 	
 	return blobs;

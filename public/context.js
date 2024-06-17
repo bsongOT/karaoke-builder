@@ -37,7 +37,8 @@ export const audio = {
         return musicAudio.paused;
     },
     play: () => musicAudio.play(),
-    pause: () => musicAudio.pause()
+    pause: () => musicAudio.pause(),
+    name: ""
 }
 
 export const lyricView = LyricView();

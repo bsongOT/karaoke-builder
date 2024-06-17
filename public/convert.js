@@ -21,7 +21,7 @@ export async function convert(events){
 		await ffmpeg.writeFile(`./scenes/scene${("0000" + i).slice(-5)}.jpg`, await fetchFile(blobs[i]))
 	}
 	
-	const animationCommand = `-framerate 24 -start_number 1 -i ./scenes/scene%05.jpg -c:v libx264 animation.mp4`;
+	const animationCommand = `-framerate 24 -start_number 1 -i ./scenes/scene%05d.jpg -c:v libx264 animation.mp4`;
 	const singAlongCommand = '-i animation.mp4 -i music.mp3 singalong.mp4';
 	const karaokeCommand = "-i animation.mp4 -i mr.mp3 karaoke.mp4"
 
@@ -30,9 +30,7 @@ export async function convert(events){
 	await ffmpeg.exec(karaokeCommand.split(" "));
 
 	const singAlong = await ffmpeg.readFile("singalong.mp4");
-	console.log(2)
 	const karaoke = await ffmpeg.readFile("karaoke.mp4");
-	console.log(3)
 
 	return {
 		singAlong: URL.createObjectURL(new Blob([singAlong.buffer], { type: "video/mp4" })),

@@ -2,7 +2,9 @@ import { download } from "./util.js"
 import { audio } from "./context.js"
 import { goBack, goForward, togglePlay, eraseSync, insertSync, closeSync } from "./features.js"
 import { convert } from "./convert.js";
+import {JSZIP} from "./jszip/dist/jszip.js";
 
+console.log(JSZIP);
 document.getElementById("file").addEventListener("change", function(){
     const url = URL.createObjectURL(this.files[0]);
 	const formData = new FormData();
@@ -14,6 +16,8 @@ document.getElementById("file").addEventListener("change", function(){
 
     audio.src = url;
     audio.controls = "true";
+	audio.name = this.files[0].name.slice(0, this.files[0].name.lastIndexOf("."));
+	console.log(audio.name)
 	document.querySelector("#workspace").style.display = "flex";
 	this.remove();
 });
@@ -30,11 +34,19 @@ function ConvertButton(){
 		progressBar.style.display = "";
 		btn.remove();
 		const data = await convert({onProgress});
-		download(data.singAlong, "sing-along.mp4");
-		download(data.karaoke, "karaoke.mp4");
-		download(data.music, "music.mp3");
-		download(data.mr, "mr.mp3")
-		download(data.syncData, "sync.json");
+		/*
+		const zip = new JSZip();
+
+		zip.file("sing-along.mp4", data.singAlong);
+		zip.file("karaoke.mp4", data.karaoke);
+		zip.file("music.mp3", data.music);
+		zip.file("mr.mp3", data.mr)
+		zip.file("sync.json", data.syncData);
+
+		const zipBlob = await zip.generateAsync({type: 'blob'});
+		const zipFileURL = URL.createObjectURL(zipBlob);
+
+		download(zipFileURL, audio.name)*/
 	}
 	
 	return btn;

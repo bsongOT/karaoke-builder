@@ -73,21 +73,35 @@ export function SceneCanvas(canvasInfo) {
 
 		cx.beginPath();
 		cx.globalCompositeOperation = "source-over";
-		cx.fillStyle = "skyblue";
+		cx.fillStyle = "#ddd";
 		const syncArr = syncData.data.flat(1);
-		for (let i = 0; i < syncArr.length; i++)
+		for (let i = 0; i < syncArr.length; i++){
 			cx.rect(
 				400 + (syncArr[i].start - time) * barSpeed,
 				30 + 15 * (i % 3),
-				(syncArr[i].end - syncArr[i].start) * barSpeed,
+				((syncArr[i].end ?? time) - syncArr[i].start) * barSpeed,
 				10
 			);
+		}
+		cx.fill();
+		cx.closePath();
+
+		cx.beginPath();
+		cx.fillStyle = "gold";
+		for (let i = 0; i < syncArr.length; i++){
+			cx.rect(
+				400 + (syncArr[i].start - time) * barSpeed,
+				30 + 15 * (i % 3),
+				Math.max(Math.min(syncArr[i].end, time) - syncArr[i].start, 0) * barSpeed,
+				10
+			);
+		}
 		cx.fill();
 		cx.closePath();
 
 		cx.beginPath();
 		cx.fillStyle = "black";
-		cx.rect(398, 25, 4, 55);
+		cx.rect(398, 25, 2, 55);
 		cx.fill();
 		cx.closePath();
 

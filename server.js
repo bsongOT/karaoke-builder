@@ -2,7 +2,8 @@ import express, { json, urlencoded } from 'express';
 import multer, { diskStorage } from "multer";
 import convert from "./Music-Remover/controllers/convert.js"
 import fetchMR from "./Music-Remover/controllers/fetchMR.js"
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, createWriteStream, mkdirSync, readFileSync } from "fs";
+import JSZip from 'jszip';
 
 const app = express();
 
@@ -31,6 +32,20 @@ app.post('/remove-vocal', upload.any("file"), convert)
 app.get('/fetch-mr', (req, res) => {
 	const dirname = import.meta.dirname + "/workspace/mr.mp3";
 	fetchMR(dirname, res)
+})
+app.post('/zip', upload.any("file"), async (req, res) => {
+	const zip = new JSZip();
+	
+	zip.file("sing-along.mp4", Buffer.from(readFileSync("./workspace/sing-along.mp4")));
+	zip.file("karaoke.mp4", Buffer.from(readFileSync("./workspace/karaoke.mp4")));
+	zip.file("music.mp3", Buffer.from(readFileSync("./workspace/music.mp3")));
+	zip.file("mr.mp3", Buffer.from(readFileSync("./workspace/mr.mp3")));
+	zip.file("sync.json", Buffer.from(readFileSync("./workspace/sync.json")));
+
+	const zipBlob = await zip.generateAsync({type: 'blob'});
+	createWriteStream("workspace/zip.zip").write(Buffer.from(await zipBlob.arrayBuffer()), () => {
+		res.status(200).sendFile(import.meta.dirname + "/workspace/zip.zip")
+	})
 })
 
 app.listen(8080, function(){

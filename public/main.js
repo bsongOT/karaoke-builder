@@ -2,9 +2,7 @@ import { download } from "./util.js"
 import { audio } from "./context.js"
 import { goBack, goForward, togglePlay, eraseSync, insertSync, closeSync } from "./features.js"
 import { convert } from "./convert.js";
-import {JSZIP} from "./jszip/dist/jszip.js";
 
-console.log(JSZIP);
 document.getElementById("file").addEventListener("change", function(){
     const url = URL.createObjectURL(this.files[0]);
 	const formData = new FormData();
@@ -17,7 +15,6 @@ document.getElementById("file").addEventListener("change", function(){
     audio.src = url;
     audio.controls = "true";
 	audio.name = this.files[0].name.slice(0, this.files[0].name.lastIndexOf("."));
-	console.log(audio.name)
 	document.querySelector("#workspace").style.display = "flex";
 	this.remove();
 });
@@ -26,27 +23,40 @@ function ConvertButton(){
 	const btn = document.createElement("button");
 	const progressBar = document.querySelector("#convert-progress");
 	const progress = document.querySelector("#convert-progress > .progress");
-	const onProgress = p => progress.style.width = `${p * 100}%`;
+	const convertMessage = document.querySelector("#convert-message");
+	const onProgress = pinfo => {
+		convertMessage.textContent = pinfo.message;
+		progress.style.width = `${pinfo.percent * 100}%`;
+	}
 
 	btn.className = "convert-button"
 	btn.innerText = "convert";
 	btn.onclick = async () => {
 		progressBar.style.display = "";
 		btn.remove();
+
 		const data = await convert({onProgress});
-		/*
-		const zip = new JSZip();
+		const form = new FormData();
 
-		zip.file("sing-along.mp4", data.singAlong);
-		zip.file("karaoke.mp4", data.karaoke);
-		zip.file("music.mp3", data.music);
-		zip.file("mr.mp3", data.mr)
-		zip.file("sync.json", data.syncData);
+		onProgress({
+			percent: 1,
+			message: "Holding on final zip file..."
+		})
 
-		const zipBlob = await zip.generateAsync({type: 'blob'});
-		const zipFileURL = URL.createObjectURL(zipBlob);
+		form.append("music", data.music, "music.mp3");
+		form.append("mr", data.mr, "mr.mp3");
+		form.append("sing-along", data.singAlong, "sing-along.mp4");
+		form.append("karaoke", data.karaoke, "karaoke.mp4");
+		form.append("sync", data.syncData, "sync.json");
 
-		download(zipFileURL, audio.name)*/
+		const zipRes = await fetch('/zip', {
+			method: "POST",
+			body: form
+		})
+		const zipBlob = await zipRes.blob();
+		const zipURL = URL.createObjectURL(zipBlob);
+		
+		download(zipURL, `${audio.name}.zip`)
 	}
 	
 	return btn;

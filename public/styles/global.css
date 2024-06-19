@@ -114,3 +114,7 @@ audio{
 	display: block;
 	margin: 0 auto;
 }
+#convert-message {
+	text-align: center;
+	margin-bottom: 5px;
+}

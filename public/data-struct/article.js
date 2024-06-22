@@ -9,6 +9,9 @@ export class Article{
     insertLine(index, ...values){
         this.data.splice(index, 0, ...values);
     }
+    removeLine(index){
+        this.data.splice(index, 1);
+    }
     at(index){
         if (!isNaN(index)) return this.data[index];
         return this.data[index[0]]?.[index[1]];

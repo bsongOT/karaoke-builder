@@ -14,11 +14,20 @@ export function Line(info){
     const view = document.createElement("div");
     const text = document.createElement("textarea");
 
-    line.classList.add("line");
-    text.classList.add("line-text");
+    line.className = "line";
+    text.className = "line-text";
 	text.rows = "1";
 
-    line.onclick = function(){
+    line.onclick = function(e){
+        if (e.ctrlKey){
+            syncData.line(info.lineIndex).forEach(l => l.kind = {
+                default: "strong",
+                strong: "weak",
+                weak: "default"
+            }[l.kind])
+            line.className = `line ${syncData.at([info.lineIndex, 0]).kind.replace("default", "")}`.trim()
+            return;
+        }
         view.style.display = "none";
         text.style.display = "block";
         text.focus();
@@ -37,7 +46,6 @@ export function Line(info){
 
         if (values.length > 1)
             syncData.insertLine(info.lineIndex + 1, ...values.slice(1).map(v => dataify(v)));
-        text.value = values[0];
     }
     
     update(()=> {

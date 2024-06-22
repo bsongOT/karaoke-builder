@@ -1,7 +1,7 @@
-import { download } from "./util.js"
-import { audio } from "./context.js"
+import { dataify, download } from "./util.js"
+import { audio, setSyncData, infos, syncData } from "./context.js"
 import { goBack, goForward, togglePlay, eraseSync, insertSync, closeSync } from "./features.js"
-import { convert } from "./convert.js";
+import { convert, getSyncDataBlob } from "./convert.js";
 
 document.getElementById("file").addEventListener("change", function(){
     const url = URL.createObjectURL(this.files[0]);
@@ -18,6 +18,58 @@ document.getElementById("file").addEventListener("change", function(){
 	document.querySelector("#workspace").style.display = "flex";
 	this.remove();
 });
+
+document.getElementById("load-sync").onclick = () => document.getElementById("sync-file").click();
+document.getElementById("sync-file").onchange = async function() {
+	const text = await this.files[0].text();
+	setSyncData(JSON.parse(text));
+	infos.currentIndex = syncData.lastIndex
+}
+document.getElementById("save-sync").onclick = async () => {
+	download(
+		URL.createObjectURL(await getSyncDataBlob()),
+		"sync.json"
+	)
+}
+document.getElementById("split-line").onclick = () => {
+	for (let i = 0; i < syncData.data.length; i++){
+		const line = syncData.line(i);
+		const sentence = line.map(si => si.word).join("");
+
+		if (getSentenceWidth(sentence) <= 14) continue;
+		
+		syncData.removeLine(i);
+		syncData.insertLine(i, ...splitSentence(sentence).map(s => dataify(s)));
+	}
+}
+
+function getSentenceWidth(sentence){
+	return sentence.split("").map(l => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(l) ? 1 : 0.5).reduce((a, b) => a + b);
+}
+
+function splitSentence(sentence){
+	let splitWidth = 0;
+    let beforeSplitIndex = -1;
+	let splitIndex = 0;
+    let sentences = [];
+	const totalWidth = getSentenceWidth(sentence);
+	const averageWidth = totalWidth / Math.ceil(totalWidth / 14);
+
+	for (let j = 0; j < sentence.length; j++){
+		splitWidth += /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(sentence[j]) ? 1 : 0.5;
+        if (sentence[j] === ' ') splitIndex = j;
+		if (splitWidth > averageWidth) {
+            sentences.push(sentence.slice(beforeSplitIndex + 1, splitIndex));
+            beforeSplitIndex = splitIndex;
+            splitWidth = 0;
+        }
+	}
+    if (beforeSplitIndex !== sentence.length - 1){
+        sentences.push(sentence.slice(beforeSplitIndex + 1))
+    }
+
+	return sentences.filter(s=> s !== "");
+}
 
 function ConvertButton(){
 	const btn = document.createElement("button");
@@ -36,23 +88,29 @@ function ConvertButton(){
 		btn.remove();
 
 		const data = await convert({onProgress});
-		const form = new FormData();
+		const requireds = [
+			["music", data.music, "music.mp3"],
+			["mr", data.mr, "mr.mp3"],
+			["sing-along", data.singAlong, "sing-along.mp4"],
+			["karaoke", data.karaoke, "karaoke.mp4"],
+			["sync", data.syncData, "sync.json"],
+		]
 
 		onProgress({
 			percent: 1,
 			message: "Holding on final zip file..."
 		})
 
-		form.append("music", data.music, "music.mp3");
-		form.append("mr", data.mr, "mr.mp3");
-		form.append("sing-along", data.singAlong, "sing-along.mp4");
-		form.append("karaoke", data.karaoke, "karaoke.mp4");
-		form.append("sync", data.syncData, "sync.json");
+		for (let i = 0; i < requireds.length; i++){
+			const form = new FormData();
+			form.append(...requireds[i]);
+			await fetch('/post-file', {
+				method: "POST",
+				body: form
+			})
+		}
 
-		const zipRes = await fetch('/zip', {
-			method: "POST",
-			body: form
-		})
+		const zipRes = await fetch('/zip')
 		const zipBlob = await zipRes.blob();
 		const zipURL = URL.createObjectURL(zipBlob);
 		
@@ -64,6 +122,7 @@ function ConvertButton(){
 document.body.append(ConvertButton())
 
 document.addEventListener("keydown", (e)=>{
+	if (document.activeElement !== document.body) return;
 	const $ = (query) => document.querySelector(query);
 	switch(e.code){
 		case "ArrowLeft": 

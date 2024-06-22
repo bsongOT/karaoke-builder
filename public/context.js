@@ -4,12 +4,20 @@ import { SceneCanvas } from "./SceneCanvas.js";
 
 const musicAudio = document.getElementById("audio");
 
+export default {
+    currentIndex: [0, 0],
+    isRunningMode: true,
+    syncData: new Article([[{word: " "}]]),
+
+}
+
 export const infos = {
 	currentIndex: [0, 0]
 }
 export let isRunningMode = true;
 export const notRunningMode = () => isRunningMode = false;
 export const syncData = new Article([[{word: " "}]]);
+export const setSyncData = (arr) => syncData.data = arr;
 
 export const audio = {
     get time(){

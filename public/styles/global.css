@@ -33,6 +33,17 @@ aside > .keyboard-box {
 aside > .keyboard-box > :last-child{
 	flex-grow: 1;
 }
+aside > .lyric-tool-box {
+	height: 54px;
+
+}
+aside > .lyric-tool-box > button {
+	height: 100%;
+	aspect-ratio: 1/1;
+}
+#sync-file {
+	display: none;
+}
 #file {
 	display: block;
 	margin: 0 auto;
@@ -59,7 +70,7 @@ aside > .keyboard-box > :last-child{
     border: 1px solid black;
 }
 .progress-bar{
-    width: 300px;
+    width: 500px;
     height: 30px;
     border: 1px solid;
 	display: block;
@@ -87,6 +98,27 @@ audio{
 .synced-open.synced-close{
 	background: gold;
 }
+
+.strong .synced-open{
+	background: linear-gradient(to bottom right, skyblue 0%, skyblue 50%, white 50%, white 100%);
+}
+.strong .synced-close{
+	background: linear-gradient(to bottom right, white 0%, white 50%, skyblue 50%, skyblue 100%);
+}
+.strong .synced-open.synced-close{
+	background: skyblue;
+}
+
+.weak .synced-open{
+	background: linear-gradient(to bottom right, aquamarine 0%, aquamarine 50%, white 50%, white 100%);
+}
+.weak .synced-close{
+	background: linear-gradient(to bottom right, white 0%, white 50%, aquamarine 50%, aquamarine 100%);
+}
+.weak .synced-open.synced-close{
+	background: aquamarine;
+}
+
 .current{
     box-shadow: 0 0 0 2px orange inset;
     background: antiquewhite;

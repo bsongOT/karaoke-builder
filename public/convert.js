@@ -55,7 +55,7 @@ function toBlobAsync(canvas){
 }
 async function getBlobs(events){
 	const blobs = [];
-	const deadline = 15;//audio.duration;
+	const deadline = audio.duration;
 	const message = "(1/4) Fetching frames...";
 	const frameCount = Math.floor(deadline * 24);
 
@@ -77,7 +77,7 @@ async function getMR(){
 	return mrRes.blob();
 }
 
-async function getSyncDataBlob(){
+export async function getSyncDataBlob(){
 	const syncRes = await fetch("data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(syncData.data)));
 
 	return syncRes.blob();

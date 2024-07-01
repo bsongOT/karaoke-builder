@@ -12,6 +12,11 @@ import {infos} from "../context.js"
 export function Letter(info){
     const letter = document.createElement("span");
 
+    letter.onclick = function(e){
+        if (!e.altKey) return;
+        infos.currentIndex = [info.lineIndex, info.letterIndex];
+    }
+
     update(() => {
         if (!document.contains(letter)) return;
         const data = syncData.at([info.lineIndex, info.letterIndex]);

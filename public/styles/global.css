@@ -39,6 +39,7 @@ aside > .lyric-tool-box {
 }
 aside > .lyric-tool-box > button {
 	height: 100%;
+	border: none;
 	aspect-ratio: 1/1;
 }
 #sync-file {

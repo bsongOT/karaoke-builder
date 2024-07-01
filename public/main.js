@@ -101,6 +101,15 @@ function ConvertButton(){
 			message: "Holding on final zip file..."
 		})
 
+		await fetch('/name', {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				name: audio.name
+			})
+		})
 		for (let i = 0; i < requireds.length; i++){
 			const form = new FormData();
 			form.append(...requireds[i]);

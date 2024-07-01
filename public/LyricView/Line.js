@@ -28,6 +28,7 @@ export function Line(info){
             line.className = `line ${syncData.at([info.lineIndex, 0]).kind.replace("default", "")}`.trim()
             return;
         }
+        if (e.altKey) return;
         view.style.display = "none";
         text.style.display = "block";
         text.focus();

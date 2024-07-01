@@ -2,7 +2,7 @@ import express, { json, urlencoded } from 'express';
 import multer, { diskStorage } from "multer";
 import convert from "./Music-Remover/controllers/convert.js"
 import fetchMR from "./Music-Remover/controllers/fetchMR.js"
-import { existsSync, createWriteStream, mkdirSync, readFileSync } from "fs";
+import { existsSync, createWriteStream, mkdirSync, readFileSync, rmSync } from "fs";
 import JSZip from 'jszip';
 
 const app = express();
@@ -17,6 +17,8 @@ const storage = diskStorage({
 	},
   })  
 const upload = multer({ storage })
+
+let pendingName = "";
 
 app.use("/public", express.static('./public/'));
 app.use("/public/jszip", express.static("./node_modules/jszip"))
@@ -34,14 +36,19 @@ app.get('/fetch-mr', (req, res) => {
 	if (!existsSync(dirname)) return res.status(200).json({message: "Not ready mr yet"});
 	fetchMR(dirname, res)
 })
+
 app.post('/post-file', upload.any("file"), (req, res) => {
 	res.status(200).json({message: "success to post file"});
+})
+app.post('/name', (req, res) => {
+	pendingName = req.body.name;
+	res.status(200).json({message: "success"});
 })
 app.get('/zip', async (req, res) => {
 	if (!existsSync("./workspace/sing-along.mp4")) return res.status(200).json({message: "sing-along.mp4 doesn't exist"})
 	if (!existsSync("./workspace/karaoke.mp4")) return res.status(200).json({ message: "karaoke.mp4 doesn't exist" })
 	if (!existsSync("./workspace/music.mp3")) return res.status(200).json({ message: "music.mp3 doesn't exist" })
-	if (!existsSync("./workspace/mr.mp3")) return res.status(200).json({ message: "mr.mp3 doesn't exist" })
+	if (!existsSync(`./workspace/mr.mp3`)) return res.status(200).json({ message: "mr.mp3 doesn't exist" })
 	if (!existsSync("./workspace/sync.json")) return res.status(200).json({ message: "sync.json doesn't exist" })	
 
 	const zip = new JSZip();
@@ -49,14 +56,14 @@ app.get('/zip', async (req, res) => {
 	zip.file("sing-along.mp4", Buffer.from(readFileSync("./workspace/sing-along.mp4")));
 	zip.file("karaoke.mp4", Buffer.from(readFileSync("./workspace/karaoke.mp4")));
 	zip.file("music.mp3", Buffer.from(readFileSync("./workspace/music.mp3")));
-	zip.file("mr.mp3", Buffer.from(readFileSync("./workspace/mr.mp3")));
+	zip.file(`${pendingName} mr.mp3`, Buffer.from(readFileSync("./workspace/mr.mp3")));
 	zip.file("sync.json", Buffer.from(readFileSync("./workspace/sync.json")));
 
 	const zipBlob = await zip.generateAsync({type: 'blob'});
 	createWriteStream("workspace/zip.zip").write(Buffer.from(await zipBlob.arrayBuffer()), () => {
 		res.status(200).sendFile(import.meta.dirname + "/workspace/zip.zip")
 		res.on("finish", () => {
-			fs.rmSync("workspace", {recursive: true});
+			rmSync("workspace", {recursive: true});
 		})
 	})
 })

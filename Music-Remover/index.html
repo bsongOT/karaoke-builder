@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Uploader</title>
+  </head>
+  <body>
+    <input type="file" accept="audio/*" name="uploader" id="f" />
+    <button id="downloader">Download</button>
+    <script>
+      const file = document.querySelector("#f");
+      const downloader = document.querySelector("#downloader");
+
+      file.onchange = () => {
+        const formData = new FormData();
+        formData.append("files", file.files[0], "pending.mp3");
+        fetch("/convert", {
+          method: "POST",
+          body: formData
+        });
+      }
+
+      downloader.onclick = async () => {
+        const musicRes = await fetch("/fetch-mr");
+        const musicBlob = await musicRes.blob();
+        const musicUrl = URL.createObjectURL(musicBlob);
+        
+        const musicElement = document.createElement("audio");
+        musicElement.src = musicUrl;
+        musicElement.controls = true;
+        document.body.append(musicElement);
+        console.log(file.files[0].name)
+      }
+    </script>
+  </body>
+</html>

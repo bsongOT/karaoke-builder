@@ -7,9 +7,11 @@ Type this to use ffmpeg wasm
 
 Type this to use spleeter
 
-> apt install ffmpeg
+> apt-get update
 
-> pip install spleeter
+> apt-get install ffmpeg
+
+> python3.8 -m pip install spleeter
 
 ## Execute Karaoke Builder
 
